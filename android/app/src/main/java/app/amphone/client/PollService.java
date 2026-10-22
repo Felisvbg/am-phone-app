@@ -78,7 +78,7 @@ public class PollService extends Service {
         for (String base : workers.keySet().toArray(new String[0])) {
             Worker w = workers.get(base);
             if (!wanted.containsKey(base) || !wanted.get(base).equals(w.token)) {
-                w.stop();
+                w.shutdown();
                 workers.remove(base);
             }
         }
@@ -93,7 +93,7 @@ public class PollService extends Service {
     }
 
     private void stopAll() {
-        for (Worker w : workers.values()) w.stop();
+        for (Worker w : workers.values()) w.shutdown();
         workers.clear();
     }
 
@@ -118,7 +118,7 @@ public class PollService extends Service {
             this.token = token;
         }
 
-        void stop() {
+        void shutdown() {
             running = false;
             HttpURLConnection c = conn;
             if (c != null) c.disconnect();
