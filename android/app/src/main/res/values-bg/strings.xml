@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ch_messages">Съобщения</string>
+    <string name="ch_messages_desc">Съобщения и известия от телефона в играта</string>
+    <string name="ch_calls">Обаждания</string>
+    <string name="ch_calls_desc">Входящи обаждания в играта</string>
+    <string name="ch_service">Фонова връзка</string>
+    <string name="ch_service_desc">Държи връзката със сървъра, за да идват известия и при затворено приложение</string>
+    <string name="incoming_call">Входящо обаждане</string>
+    <string name="service_title">AM Phone е свързан</string>
+    <plurals name="service_text">
+        <item quantity="one">Слуша %d сървър</item>
+        <item quantity="other">Слуша %d сървъра</item>
+    </plurals>
+    <string name="server_no_answer">Сървърът не отговаря: %s</string>
+</resources>

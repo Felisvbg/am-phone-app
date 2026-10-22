@@ -1,0 +1,71 @@
+# Строи AM Phone за Android и го качва в Releases като AMPhone.apk.
+name: Android APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - '.github/workflows/android.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      # Постоянен ключ за подписване (Settings → Secrets → Actions):
+      #   AMPHONE_KEYSTORE_B64       - .jks файлът в base64
+      #   AMPHONE_KEYSTORE_PASSWORD  - паролата
+      # Без тях APK-то се подписва с временен ключ и всяка нова версия иска деинсталиране на старата.
+      - name: Signing key
+        env:
+          KS_B64: ${{ secrets.AMPHONE_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/amphone.jks"
+            echo "AMPHONE_KEYSTORE=$RUNNER_TEMP/amphone.jks" >> "$GITHUB_ENV"
+          else
+            echo "::warning::AMPHONE_KEYSTORE_B64 is not set - using a temporary debug key"
+          fi
+
+      - name: Build APK
+        working-directory: android
+        env:
+          AMPHONE_KEYSTORE_PASSWORD: ${{ secrets.AMPHONE_KEYSTORE_PASSWORD }}
+        run: gradle --no-daemon assembleRelease
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk AMPhone.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AMPhone
+          path: AMPhone.apk
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.0.${{ github.run_number }}
+          name: AM Phone v2.0.${{ github.run_number }}
+          body: |
+            **BG:** Изтегли **AMPhone.apk** на телефона и го инсталирай (разреши „Инсталиране от неизвестни източници“). Отвори приложението, въведи адреса на сървъра и кода от играта (Телефон → Настройки → Истински телефон).
+
+            **EN:** Download **AMPhone.apk** on your phone and install it (allow "Install unknown apps"). Open the app, enter the server address and the code from the game (Phone → Settings → Real phone).
+          files: AMPhone.apk
+          make_latest: true

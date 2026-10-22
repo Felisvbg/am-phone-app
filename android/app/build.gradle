@@ -1,0 +1,51 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'app.amphone.client'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'app.amphone.client'
+        minSdk 26
+        targetSdk 34
+        versionCode Integer.parseInt(System.getenv('GITHUB_RUN_NUMBER') ?: '1')
+        versionName "2.0.${System.getenv('GITHUB_RUN_NUMBER') ?: '0'}"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        // Ключът за подписване идва от GitHub Secrets (виж README). Без него се ползва debug ключ.
+        release {
+            def ks = System.getenv('AMPHONE_KEYSTORE')
+            if (ks && file(ks).exists()) {
+                storeFile file(ks)
+                storePassword System.getenv('AMPHONE_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('AMPHONE_KEY_ALIAS') ?: 'amphone'
+                keyPassword System.getenv('AMPHONE_KEY_PASSWORD') ?: System.getenv('AMPHONE_KEYSTORE_PASSWORD')
+            } else {
+                def dbg = signingConfigs.debug
+                storeFile dbg.storeFile
+                storePassword dbg.storePassword
+                keyAlias dbg.keyAlias
+                keyPassword dbg.keyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AM Phone</string>
+    <string name="ch_messages">Messages</string>
+    <string name="ch_messages_desc">Messages and notifications from the in-game phone</string>
+    <string name="ch_calls">Calls</string>
+    <string name="ch_calls_desc">Incoming in-game calls</string>
+    <string name="ch_service">Background connection</string>
+    <string name="ch_service_desc">Keeps the connection to the server so notifications arrive while the app is closed</string>
+    <string name="incoming_call">Incoming call</string>
+    <string name="service_title">AM Phone is connected</string>
+    <plurals name="service_text">
+        <item quantity="one">Listening to %d server</item>
+        <item quantity="other">Listening to %d servers</item>
+    </plurals>
+    <string name="server_no_answer">The server does not answer: %s</string>
+</resources>

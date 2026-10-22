@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>AM Phone</title>
+<style>
+    html, body { margin: 0; min-height: 100%; background: #07080b; color: #f2f4f8;
+        font-family: -apple-system, Roboto, 'Segoe UI', sans-serif; }
+    body { padding: 48px 20px 32px; box-sizing: border-box;
+        background: radial-gradient(120% 70% at 50% 0%, #1b2233 0%, #07080b 70%) fixed; }
+    .wrap { max-width: 400px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .head { text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+    .logo { width: 76px; height: 76px; border-radius: 22px; display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(150deg, #5b8cff, #7a4dff); box-shadow: 0 10px 30px rgba(91, 140, 255, .35); }
+    .logo svg { width: 38px; height: 38px; }
+    h1 { margin: 0; font-size: 26px; letter-spacing: -.3px; }
+    p { margin: 0; color: #a3abbd; font-size: 15px; line-height: 1.45; }
+    .label { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: #6f7a90; margin: 10px 4px -4px; }
+    .list { background: #11151e; border-radius: 18px; overflow: hidden; border: 1px solid #1e2533; }
+    .srv { display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 16px; border-bottom: 1px solid #1e2533; }
+    .srv:last-child { border-bottom: 0; }
+    .srv .main { flex: 1; min-width: 0; }
+    .srv .t { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .srv .s { font-size: 13px; color: #7d879b; margin-top: 2px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #3a4255; flex: none; }
+    .dot.on { background: #3ddc84; }
+    .x { background: none; border: 0; color: #6f7a90; font-size: 22px; padding: 4px 8px; }
+    input { width: 100%; box-sizing: border-box; font-size: 17px; padding: 14px 16px; border-radius: 16px;
+        border: 1px solid #2a3244; background: #11151e; color: #fff; outline: none; }
+    input:focus { border-color: #5b8cff; }
+    .btn { font-size: 17px; font-weight: 600; padding: 15px; border: 0; border-radius: 16px;
+        background: #5b8cff; color: #fff; width: 100%; }
+    .btn.ghost { background: #161b26; color: #c6cdda; font-weight: 500; font-size: 15px; }
+    .row { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+    .row .main { flex: 1; }
+    .row .s { font-size: 13px; color: #7d879b; margin-top: 2px; }
+    .toggle { width: 50px; height: 30px; border-radius: 15px; background: #2a3244; position: relative; border: 0; flex: none; transition: background .2s; }
+    .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s; }
+    .toggle.on { background: #3ddc84; }
+    .toggle.on::after { transform: translateX(20px); }
+    .err { color: #ff6b6b; font-size: 14px; text-align: center; }
+    .err:empty { display: none; }
+    .hint { font-size: 13px; color: #6f7a90; padding: 0 4px; word-break: break-all; }
+    code { color: #9db8ff; }
+    .ver { text-align: center; font-size: 12px; color: #4b5468; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="head">
+        <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2.5"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+        <h1>AM Phone</h1>
+        <p id="intro"></p>
+    </div>
+    <p class="err" id="err"></p>
+
+    <div id="savedBox" style="display:none">
+        <div class="label" id="lSaved"></div>
+        <div class="list" id="saved"></div>
+    </div>
+
+    <div class="label" id="lAdd"></div>
+    <input id="addr" type="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <div class="hint" id="preview"></div>
+    <button class="btn" id="go"></button>
+
+    <div class="label" id="lNotif"></div>
+    <div class="list">
+        <div class="row">
+            <div class="main"><div id="tBg"></div><div class="s" id="sBg"></div></div>
+            <button class="toggle" id="bg"></button>
+        </div>
+    </div>
+    <button class="btn ghost" id="battery"></button>
+    <div class="ver" id="ver"></div>
+</div>
+<script>
+    var bg = (navigator.language || 'en').toLowerCase().indexOf('bg') === 0;
+    var T = bg ? {
+        intro: 'Телефонът от FiveM сървъра на твоя телефон. Въведи адреса, който виждаш в играта: Телефон → Настройки → Истински телефон (или командата /phonelink).',
+        saved: 'Сървъри', add: 'Добави сървър', placeholder: 'например 95.43.12.7:30120', go: 'Свържи',
+        linked: 'свързан', notLinked: 'не е свързан', remove: 'Премахни сървъра „%s“?',
+        notif: 'Известия', bgTitle: 'Известия при затворено приложение',
+        bgSub: 'Съобщения и обаждания идват дори когато AM Phone не е отворен.',
+        battery: 'Изключи ограниченията за батерия', empty: 'Въведи адрес.', bad: 'Невалиден адрес.', ver: 'Версия '
+    } : {
+        intro: 'The phone from your FiveM server on your real phone. Enter the address shown in the game: Phone → Settings → Real phone (or the /phonelink command).',
+        saved: 'Servers', add: 'Add a server', placeholder: 'e.g. 95.43.12.7:30120', go: 'Connect',
+        linked: 'linked', notLinked: 'not linked', remove: 'Remove server "%s"?',
+        notif: 'Notifications', bgTitle: 'Notifications when the app is closed',
+        bgSub: 'Messages and calls arrive even when AM Phone is not open.',
+        battery: 'Turn off battery restrictions', empty: 'Enter an address.', bad: 'Invalid address.', ver: 'Version '
+    };
+    var N = window.AmPhoneNative;
+    var $ = function (id) { return document.getElementById(id); };
+    $('intro').textContent = T.intro;
+    $('lSaved').textContent = T.saved;
+    $('lAdd').textContent = T.add;
+    $('addr').placeholder = T.placeholder;
+    $('go').textContent = T.go;
+    $('lNotif').textContent = T.notif;
+    $('tBg').textContent = T.bgTitle;
+    $('sBg').textContent = T.bgSub;
+    $('battery').textContent = T.battery;
+    var q = new URLSearchParams(location.search);
+    if (q.get('error')) $('err').textContent = q.get('error');
+    if (N) $('ver').textContent = T.ver + N.version();
+
+    function renderSaved() {
+        var list = N ? JSON.parse(N.servers()) : [];
+        var box = $('saved');
+        box.innerHTML = '';
+        $('savedBox').style.display = list.length ? '' : 'none';
+        list.forEach(function (s) {
+            var row = document.createElement('div');
+            row.className = 'srv';
+            row.innerHTML = '<span class="dot"></span><div class="main"><div class="t"></div><div class="s"></div></div><button class="x">×</button>';
+            row.querySelector('.dot').classList.toggle('on', s.linked);
+            row.querySelector('.t').textContent = s.title;
+            row.querySelector('.s').textContent = s.host + ' · ' + (s.linked ? T.linked : T.notLinked);
+            row.querySelector('.main').onclick = function () { N.openServer(s.base); };
+            row.querySelector('.x').onclick = function () {
+                if (confirm(T.remove.replace('%s', s.title))) { N.removeServer(s.base); renderSaved(); }
+            };
+            box.appendChild(row);
+        });
+    }
+
+    function update() {
+        var v = $('addr').value.trim();
+        $('preview').textContent = v && N ? N.preview(v) : '';
+    }
+    function go() {
+        var v = $('addr').value.trim();
+        if (!v) { $('err').textContent = T.empty; return; }
+        $('err').textContent = '';
+        if (N && !N.addServer(v)) $('err').textContent = T.bad;
+    }
+    $('addr').addEventListener('input', update);
+    $('addr').addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    $('go').onclick = go;
+
+    var tg = $('bg');
+    tg.classList.toggle('on', N ? N.background() : true);
+    tg.onclick = function () {
+        var on = !tg.classList.contains('on');
+        tg.classList.toggle('on', on);
+        if (N) N.setBackground(on);
+    };
+    $('battery').onclick = function () { if (N) N.batterySettings(); };
+
+    renderSaved();
+    update();
+</script>
+</body>
+</html>
