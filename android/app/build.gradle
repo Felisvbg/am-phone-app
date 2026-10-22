@@ -19,7 +19,7 @@ android {
     }
 
     signingConfigs {
-        // Ключът за подписване идва от GitHub Secrets (виж README). Без него се ползва debug ключ.
+        // Ключът за подписване идва от GitHub Secrets (виж README). Без него се ползва временен debug ключ.
         release {
             def ks = System.getenv('AMPHONE_KEYSTORE')
             if (ks && file(ks).exists()) {
