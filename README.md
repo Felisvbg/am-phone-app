@@ -24,4 +24,4 @@ For a stable signing key add repository secrets `AMPHONE_KEYSTORE_B64` (base64 o
 
 Local: `cd android && gradle assembleRelease` (Android SDK 34, JDK 17).
 
-© 2026 AM. All rights reserved.
+© 2026 AM. All rights reserved. Source available, not open source – see [LICENSE](LICENSE).
